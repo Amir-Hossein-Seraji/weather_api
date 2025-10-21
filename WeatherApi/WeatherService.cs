@@ -16,7 +16,7 @@ public class WeatherService : IWeatherService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly string _apiKey;
 
-
+    // DI
     public WeatherService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
