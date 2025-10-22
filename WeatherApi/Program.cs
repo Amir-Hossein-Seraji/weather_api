@@ -20,6 +20,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 //app.UseHttpsRedirection();
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.MapGet("/weather", async (string city, IWeatherService service) =>
 {
@@ -41,6 +42,7 @@ app.MapGet("/weather", async (string city, IWeatherService service) =>
 .WithName("GetWeatherByCity")
 .WithDescription("Gets current environmental data for a specified city.")
 .WithOpenApi();
+
 app.Run();
 
 //public partial class Program { }
