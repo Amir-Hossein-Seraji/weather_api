@@ -3,6 +3,7 @@ using WeatherApi.Models;
 using WeatherApi.Models.DTOs;
 using WeatherApi.Models.External;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("WeatherApi.Tests")]
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient();
