@@ -2,10 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace WeatherApi.Models;
 
-public class Coordinates
+public class Coordination
 {
-    public double Lat { get; set; }
-    public double Lon { get; set; }
+    public double Latitude { get; set; }
+    public double Longtitude { get; set; }
 }
 
 public class Pollutants

@@ -41,10 +41,10 @@ public class WeatherApiTests
             TemperatureC = 15.0,
             Humidity = 50,
             WindSpeed = 3.5,
-            Coords = new Coordinates { Lat = 35.6944, Lon = 51.4215 },
+            Coords = new Coordination { Latitude = 35.6944, Longtitude = 51.4215 },
             AirQuality = new AirQualityData
             {
-                Aqi = 3,
+                AirQualityIndex = 3,
                 Pollutants = new Pollutants { Pm2_5 = 10.1, Co = 200.2, No2 = 14.3 }
             }
         };
@@ -63,7 +63,7 @@ public class WeatherApiTests
         Assert.NotNull(responseData);
         Assert.Equal(testCity, responseData.City, ignoreCase: true);
         Assert.Equal(15.0, responseData.TemperatureC);
-        Assert.Equal(3, responseData.AirQuality.Aqi);
+        Assert.Equal(3, responseData.AirQuality.AirQualityIndex);
         Assert.Equal(10.1, responseData.AirQuality.Pollutants.Pm2_5);
     }
 }

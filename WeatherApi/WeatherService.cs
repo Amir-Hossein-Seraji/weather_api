@@ -17,7 +17,10 @@ public class WeatherService : IWeatherService
     private readonly string _apiKey;
 
     // DI
-    public WeatherService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+    public WeatherService(
+        IHttpClientFactory httpClientFactory,
+        IConfiguration configuration
+        )
     {
         _httpClientFactory = httpClientFactory;
         _apiKey = configuration["OpenWeather:ApiKey"]
@@ -29,19 +32,31 @@ public class WeatherService : IWeatherService
 
         var httpClient = _httpClientFactory.CreateClient();
 
-        var weatherUrl = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric";
-        var weatherResponse = await httpClient.GetAsync(weatherUrl);
-        if (!weatherResponse.IsSuccessStatusCode)
+        var weatherData = await OpenWeatherApiResponse(city, httpClient);
+        var airPollutionData = await AirPollutionResponse(weatherData, httpClient);
+        var airData = airPollutionData.List[0];
+        // MAP TO OUR DTO (Data Transfer Object)
+        var finalResponse = new EnvironmentalDataResponse
         {
-            throw new Exception($"Could not retrieve weather for {city}.");
-        }
-        var weatherData = await weatherResponse.Content.ReadFromJsonAsync<WeatherApiResponse>();
-        if (weatherData == null)
-        {
-            throw new Exception("Failed to deserialize weather data.");
-        }
-        var lat = weatherData.Coords.Lat;
-        var lon = weatherData.Coords.Lon;
+            City = weatherData.Name,
+            TemperatureC = weatherData.Main.TemperatureByCelsius,
+            Humidity = weatherData.Main.Humidity,
+            WindSpeed = weatherData.Wind.SpeedByMeterPerSecond,
+            Coords = weatherData.Coords, 
+            AirQuality = new AirQualityData
+            {
+                AirQualityIndex = airData.AqiData.AirQualityIndex,
+                Pollutants = airData.Pollutants 
+            }
+        };
+
+        return finalResponse;
+    }
+
+    private async Task<AirPollutionResponse?> AirPollutionResponse(OpenWeatherApiResponse? weatherData, HttpClient httpClient)
+    {
+        var lat = weatherData.Coords.Latitude;
+        var lon = weatherData.Coords.Longtitude;
         var airPollutionUrl = $"https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={_apiKey}";
         var airPollutionResponse = await httpClient.GetAsync(airPollutionUrl);
         if (!airPollutionResponse.IsSuccessStatusCode)
@@ -53,22 +68,24 @@ public class WeatherService : IWeatherService
         {
             throw new Exception("Failed to deserialize air pollution data.");
         }
-        var airData = airPollutionData.List[0];
-        // MAP TO OUR DTO (Data Transfer Object)
-        var finalResponse = new EnvironmentalDataResponse
-        {
-            City = weatherData.Name,
-            TemperatureC = weatherData.Main.Temperature,
-            Humidity = weatherData.Main.Humidity,
-            WindSpeed = weatherData.Wind.Speed,
-            Coords = weatherData.Coords, 
-            AirQuality = new AirQualityData
-            {
-                Aqi = airData.AqiData.Aqi,
-                Pollutants = airData.Pollutants 
-            }
-        };
 
-        return finalResponse;
+        return airPollutionData;
+    }
+
+    private async Task<OpenWeatherApiResponse?> OpenWeatherApiResponse(string city, HttpClient httpClient)
+    {
+        var weatherUrl = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric";
+        var weatherResponse = await httpClient.GetAsync(weatherUrl);
+        if (!weatherResponse.IsSuccessStatusCode)
+        {
+            throw new Exception($"Could not retrieve weather for {city}.");
+        }
+        var weatherData = await weatherResponse.Content.ReadFromJsonAsync<OpenWeatherApiResponse>();
+        if (weatherData == null)
+        {
+            throw new Exception("Failed to deserialize weather data.");
+        }
+
+        return weatherData;
     }
 }

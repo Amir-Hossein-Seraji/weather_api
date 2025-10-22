@@ -5,10 +5,10 @@ namespace WeatherApi.Models.External;
 
 public class AirPollutionResponse
 {
-    public List<AirPollutionList> List { get; set; } = new();
+    public List<OpenWeatherAirPullutionResponse> List { get; set; } = new();
 }
 
-public class AirPollutionList
+public class OpenWeatherAirPullutionResponse
 {
     [JsonPropertyName("main")]
     public AirQualityMain AqiData { get; set; } = new();
@@ -18,5 +18,5 @@ public class AirPollutionList
 
 public class AirQualityMain
 {
-    public int Aqi { get; set; }
+    public int AirQualityIndex { get; set; }
 }
