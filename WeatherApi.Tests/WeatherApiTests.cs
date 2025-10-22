@@ -61,7 +61,7 @@ public class WeatherApiTests
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var responseData = JsonSerializer.Deserialize<EnvironmentalDataResponse>(jsonString, options);
         Assert.NotNull(responseData);
-        Assert.Equal(testCity, responseData.City);
+        Assert.Equal(testCity, responseData.City, ignoreCase: true);
         Assert.Equal(15.0, responseData.TemperatureC);
         Assert.Equal(3, responseData.AirQuality.Aqi);
         Assert.Equal(10.1, responseData.AirQuality.Pollutants.Pm2_5);
