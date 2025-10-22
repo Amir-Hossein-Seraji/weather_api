@@ -20,7 +20,6 @@ public class WeatherService : IWeatherService
     public WeatherService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
-
         _apiKey = configuration["OpenWeather:ApiKey"]
                   ?? throw new ArgumentNullException(nameof(configuration), "OpenWeather:ApiKey is not configured.");
     }
