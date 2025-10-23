@@ -14,7 +14,7 @@ This is a .NET Web API that fulfills the Okala backend developer challenge. It p
 ## How to Run
 
 1.  ### Prerequisites
-    * .NET 9 SDK (or your current .NET SDK version)
+    * .NET 8 SDK 
     * A free API key from [OpenWeatherMap](https://openweathermap.org/) (Instructions below)
 
 2.  ### Getting Your API Key (Required)
