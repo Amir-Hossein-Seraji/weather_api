@@ -1,41 +1,60 @@
-var builder = WebApplication.CreateBuilder(args);
+using WeatherApi;
+using WeatherApi.Models;
+using WeatherApi.Models.DTOs;
+using WeatherApi.Models.External;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("WeatherApi.Tests")]
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IWeatherService, WeatherService>();
+
+builder.Services.AddMemoryCache();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+//app.UseHttpsRedirection();
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+app.MapGet("/weather", async (string city, IWeatherService service, ILogger<Program> logger) =>
+    {
+        // --- Better Validation ---
+        if (string.IsNullOrWhiteSpace(city))
+        {
+            return Results.BadRequest("City name is required.");
+        }
+        if (city.Length > 100)
+        {
+            return Results.BadRequest("City name is too long.");
+        }
+    try
+    {
+        var data = await service.GetEnvironmentalDataAsync(city);
+        
+        return Results.Ok(data);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while fetching data for city {City}", city);
+        return Results.Problem(
+            detail: "An internal error occurred. Please try again later.",
+            statusCode: 500
+        );
+    }
 })
-.WithName("GetWeatherForecast");
+.WithName("GetWeatherByCity")
+.WithDescription("Gets current environmental data for a specified city.")
+.WithOpenApi();
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+public partial class Program { }
