@@ -35,7 +35,7 @@ This is a .NET Web API that fulfills the Okala backend developer challenge. It p
 
 3.  ### Clone the Repository
     ```sh
-    git clone [https://github.com/Amir-Hossein-Seraji/weather_api.git](https://github.com/Amir-Hossein-Seraji/weather_api.git)
+    git clone https://github.com/Amir-Hossein-Seraji/weather_api.git
     cd weather_api
     ```
 
