@@ -50,13 +50,11 @@ Imagine you are processing different "event" dictionaries. The code is clunky an
 ```python
 def process_event_old(event):
     if event['type'] == 'create_user':
-        # Manually get the username
         username = event.get('username')
         if username:
             print(f"Creating user {username}...")
     
     elif event['type'] == 'delete_user':
-        # Manually get the user_id
         user_id = event.get('user_id')
         if user_id:
             print(f"Deleting user {user_id}...")
@@ -69,15 +67,12 @@ The code is much cleaner. The match statement can check the dictionary's structu
 ```python
 def process_event_new(event):
     match event:
-        # Match a dict with 'type' and 'username' keys
         case {'type': 'create_user', 'username': username}:
             print(f"Creating user {username}...")
         
-        # Match a dict with 'type' and 'user_id' keys
         case {'type': 'delete_user', 'user_id': user_id}:
             print(f"Deleting user {user_id}...")
         
-        # The default case
         case _:
             print("Unknown event type")
 ```

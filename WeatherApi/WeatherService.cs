@@ -44,10 +44,8 @@ public class WeatherService : IWeatherService
     {
         var cacheKey = $"weather_{city.ToLowerInvariant()}";
 
-        // Try to get data from the cache
         if (_cache.TryGetValue(cacheKey, out EnvironmentalDataResponse cachedData))
         {
-            // Found it! Return the cached data immediately.
             return cachedData;
         }
         
