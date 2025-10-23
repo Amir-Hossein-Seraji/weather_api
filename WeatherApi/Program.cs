@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -23,8 +25,7 @@ if (app.Environment.IsDevelopment())
 //app.UseHttpsRedirection();
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
-app.MapGet("/weather", async (string city, IWeatherService service) =>
-{
+app.MapGet("/weather", async (string city, IWeatherService service, ILogger<Program> logger) =>{
     if (string.IsNullOrWhiteSpace(city))
     {
         return Results.BadRequest("City name is required.");
@@ -37,7 +38,11 @@ app.MapGet("/weather", async (string city, IWeatherService service) =>
     }
     catch (Exception ex)
     {
-        return Results.NotFound($"Data not found for {city}.");
+        logger.LogError(ex, "An error occurred while fetching data for city {City}", city);
+        return Results.Problem(
+            detail: "An internal error occurred. Please try again later.",
+            statusCode: 500
+        );
     }
 })
 .WithName("GetWeatherByCity")

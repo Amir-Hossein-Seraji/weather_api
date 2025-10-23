@@ -1,6 +1,7 @@
 using WeatherApi.Models;
 using WeatherApi.Models.DTOs;
 using WeatherApi.Models.External;
+using Microsoft.Extensions.Caching.Memory;
 
 
 namespace WeatherApi;
@@ -15,8 +16,20 @@ public class WeatherService : IWeatherService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly string _apiKey;
+    private readonly IMemoryCache _cache;
 
-    // DI
+    public WeatherService(IHttpClientFactory httpClientFactory,
+        IConfiguration configuration,
+        IMemoryCache memoryCache) 
+    {
+        _httpClientFactory = httpClientFactory;
+        _apiKey = configuration["OpenWeather:ApiKey"] 
+                  ?? throw new ArgumentNullException(nameof(configuration), "OpenWeather:ApiKey is not configured.");
+        _cache = memoryCache; 
+    }
+    
+
+// DI
     public WeatherService(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration
@@ -29,7 +42,15 @@ public class WeatherService : IWeatherService
 
     public async Task<EnvironmentalDataResponse> GetEnvironmentalDataAsync(string city)
     {
+        var cacheKey = $"weather_{city.ToLowerInvariant()}";
 
+        // Try to get data from the cache
+        if (_cache.TryGetValue(cacheKey, out EnvironmentalDataResponse cachedData))
+        {
+            // Found it! Return the cached data immediately.
+            return cachedData;
+        }
+        
         var httpClient = _httpClientFactory.CreateClient();
 
         var weatherData = await OpenWeatherApiResponse(city, httpClient);
@@ -49,7 +70,11 @@ public class WeatherService : IWeatherService
                 Pollutants = airData.Pollutants 
             }
         };
+        var cacheOptions = new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(15)); // Cache for 15 mins
 
+        _cache.Set(cacheKey, finalResponse, cacheOptions);
+        
         return finalResponse;
     }
 

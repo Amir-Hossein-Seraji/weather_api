@@ -5,9 +5,11 @@ This is a .NET Web API that fulfills the Okala backend developer challenge. It p
 ## Features
 
 * **GET /weather** endpoint to retrieve data for a city.
+* **In-Memory Caching:** Caches results for 15 minutes to dramatically improve performance and reduce external API calls.
+* **Structured Logging:** Logs all errors to the console for effective debugging without exposing details to the user.
 * Combines data from `/weather` and `/air_pollution` endpoints.
-* Clean, service-based architecture.
-* Includes an integration test that mocks the external API.
+* Clean, service-based architecture (using DTOs and a Service layer).
+* Includes an integration test that mocks the external API..
 
 ## How to Run
 
