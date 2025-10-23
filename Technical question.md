@@ -18,16 +18,14 @@ I spent time on this task over the span of two days, totaling approximately 7-8 
 
 The current solution meets the challenge requirements and already includes key features like **in-memory caching** and **structured logging**. If I had more time to make it a fully production-grade application, I would focus on these key areas:
 
-1.  **Resilience & Reliability:** The app currently fails on a single network timeout. I would implement a resilience policy using a library like **Polly**. This would add **automatic retries** (e.g., retry 3 times with exponential backoff) for transient network errors. I would also add a **Circuit Breaker** to stop the app from hammering the external API if it's clearly down, allowing it to recover.
-
+1.  **Resilience & Reliability:** The app currently fails on a single network timeout. I would implement a resilience policy using a library like **Polly**. This would add **automatic retries** (e.g., retry 3 times with exponential backoff) for transient network errors. 
 2.  **Security & Scalability:**
     * **Rate Limiting:** To protect the public endpoint from abuse or DDoS attacks, I would use .NET's built-in rate-limiting middleware. This would prevent a single IP from overwhelming the service.
     * **Distributed Cache:** The current `IMemoryCache` is per-server. If the app were scaled to run on multiple servers, I would replace this with a **distributed cache (like Redis)** to ensure all instances share one consistent cache.
 
 3.  **Maintainability (Configuration):** I would improve configuration management for different environments. This would involve adding environment-specific files like `appsettings.Development.json` and `appsettings.Production.json` to manage different API keys, logging levels, or cache durations for "dev," "staging," and "production."
 
-**A Note on Parallelization:**
-One performance improvement I investigated was parallelizing the external API calls using `Task.WhenAll`. However, I discovered that the Air Pollution API call **depends on the coordinates** returned from the Current Weather API call. Because of this data dependency, the calls must be executed sequentially. If the calls were independent, parallelization would have been a high-priority addition.
+
 
 ---
 ### What is the most useful feature recently added to your favorite programming language? Please include a code snippet to demonstrate how you use it.
@@ -96,13 +94,13 @@ Once alerted, I would immediately look at high-level monitoring dashboards to co
 
 Once I've identified *what* is slow (e.g., "the `GET /weather` endpoint is taking 8 seconds"), my next step is to find *why*. This is where the **structured logging** I implemented in this project becomes critical.
 
-* **Check the Logs:** I would filter the logs (using a tool like Splunk, ELK, or just `grep`) for the specific endpoint or time frame. The logs would show me the "story" of the request.
+* **Check the Logs:** I would filter the logs for the specific endpoint or time frame. In a production environment, these logs would be collected and sent to a **centralized logging service**. I would use that service's query tools to find the error. On a simpler setup, I would search the raw log files directly on the server using command-line tools.
 * **Isolate the Bottleneck:** I would look at the timestamps in the logs to see where the time is being spent.
     * **Is it our app?** Is a specific function or loop taking a long time?
     * **Is it the database?** Is a database query hanging?
     * **Is it an external API?** In our project, I would check if the log shows that the OpenWeatherMap API call is the part that's taking 8 seconds.
 
-If the logs aren't specific enough, the final step would be to attach a **profiler** or use an **Application Performance Management (APM)** tool (like DataDog or New Relic) to get a line-by-line breakdown of where every millisecond is being spent in the code.
+If the logs aren't specific enough, the final step would be to attach a **profiler** or use an **Application Performance Management (APM)** tool to get a line-by-line breakdown of where every millisecond is being spent in the code.
 
 ### What's the last technical book you read or technical conference you attended? What did you learn from it?
 

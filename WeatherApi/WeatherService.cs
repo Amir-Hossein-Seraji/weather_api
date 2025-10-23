@@ -28,18 +28,6 @@ public class WeatherService : IWeatherService
         _cache = memoryCache; 
     }
     
-
-// DI
-    public WeatherService(
-        IHttpClientFactory httpClientFactory,
-        IConfiguration configuration
-        )
-    {
-        _httpClientFactory = httpClientFactory;
-        _apiKey = configuration["OpenWeather:ApiKey"]
-                  ?? throw new ArgumentNullException(nameof(configuration), "OpenWeather:ApiKey is not configured.");
-    }
-
     public async Task<EnvironmentalDataResponse> GetEnvironmentalDataAsync(string city)
     {
         var cacheKey = $"weather_{city.ToLowerInvariant()}";
