@@ -41,7 +41,7 @@ public class WeatherApiTests
             TemperatureC = 15.0,
             Humidity = 50,
             WindSpeed = 3.5,
-            Coords = new Coordination { Latitude = 35.6944, Longtitude = 51.4215 },
+            Coords = new Coordination { Latitude = 35.6944, Longitude = 51.4215 },
             AirQuality = new AirQualityData
             {
                 AirQualityIndex = 3,

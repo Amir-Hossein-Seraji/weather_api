@@ -81,7 +81,7 @@ public class WeatherService : IWeatherService
     private async Task<AirPollutionResponse?> AirPollutionResponse(OpenWeatherApiResponse? weatherData, HttpClient httpClient)
     {
         var lat = weatherData.Coords.Latitude;
-        var lon = weatherData.Coords.Longtitude;
+        var lon = weatherData.Coords.Longitude;
         var airPollutionUrl = $"https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={_apiKey}";
         var airPollutionResponse = await httpClient.GetAsync(airPollutionUrl);
         if (!airPollutionResponse.IsSuccessStatusCode)
