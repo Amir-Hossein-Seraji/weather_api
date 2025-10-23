@@ -25,11 +25,17 @@ if (app.Environment.IsDevelopment())
 //app.UseHttpsRedirection();
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
-app.MapGet("/weather", async (string city, IWeatherService service, ILogger<Program> logger) =>{
-    if (string.IsNullOrWhiteSpace(city))
+app.MapGet("/weather", async (string city, IWeatherService service, ILogger<Program> logger) =>
     {
-        return Results.BadRequest("City name is required.");
-    }
+        // --- Better Validation ---
+        if (string.IsNullOrWhiteSpace(city))
+        {
+            return Results.BadRequest("City name is required.");
+        }
+        if (city.Length > 100)
+        {
+            return Results.BadRequest("City name is too long.");
+        }
     try
     {
         var data = await service.GetEnvironmentalDataAsync(city);
