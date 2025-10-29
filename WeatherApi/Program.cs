@@ -27,7 +27,6 @@ app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.MapGet("/weather", async (string city, IWeatherService service, ILogger<Program> logger) =>
     {
-        // --- Better Validation ---
         if (string.IsNullOrWhiteSpace(city))
         {
             return Results.BadRequest("City name is required.");
