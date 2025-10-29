@@ -18,5 +18,6 @@ public class OpenWeatherAirPullutionResponse
 
 public class AirQualityMain
 {
+    [JsonPropertyName("aqi")]
     public int AirQualityIndex { get; set; }
 }
